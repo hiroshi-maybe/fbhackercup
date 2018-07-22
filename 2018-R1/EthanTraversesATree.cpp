@@ -126,20 +126,69 @@ void assertTree(int N, UF &uf, MAPII &M) {
   REP(i,N) {
     if(SS1[i]!=SS2[i]) {
       ng++;
-//      dump3(i,SS1[i],SS2[i]);
-//      dumpAR(SS1);
-//      dumpAR(SS2);
+      dump3(i,SS1[i],SS2[i]);
+      dumpAR(SS1);
+      dumpAR(SS2);
     }
-//    assert(SS1[i]==SS2[i]);
+    assert(SS1[i]==SS2[i]);
   }
   if(ng>0) ++ngcnt;
+}
+
+void preord2(int u, UF &uf, MAPII &M, VI &XX1,int N) {
+  assert(u<N);
+  if(u>-1) {
+    XX1.push_back(M[uf.uf[u]]);
+    assert(SZ(G[u])==2);
+    preord2(G[u][0],uf,M,XX1,N),preord2(G[u][1],uf,M,XX1,N);
+  }
+}
+void postord2(int u, UF &uf, MAPII &M, VI &XX2,int N) {
+  assert(u<N);
+  if(u>-1) {
+    assert(SZ(G[u])==2);
+    postord2(G[u][0],uf,M,XX2,N),postord2(G[u][1],uf,M,XX2,N);
+    XX2.push_back(M[uf.uf[u]]);
+  }
+}
+
+void assertTree2(int N, UF &uf, MAPII &M) {
+  VI XX1,XX2;
+  preord2(0,uf,M,XX1,N);
+  postord2(0,uf,M,XX2,N);
+  if(SZ(XX1)!=N) dump2(SZ(XX1),N);
+  if(SZ(XX2)!=N) dump2(SZ(XX2),N);
+  assert(SZ(XX1)==N);
+  assert(SZ(XX2)==N);
+  REP(i,N) {
+    if(XX1[i]!=XX2[i]) {
+      int v1=S1[i],v2=S2[i];
+      dump3(i,XX1[i],XX2[i]);
+      int g1=uf.uf[v1],g2=uf.uf[v2];
+      dump4(v1,v2,g1,g2);
+      SETI a1,a2;
+      REP(i,N)
+      
+      dumpAR(S1);
+      dumpAR(S2);
+    }
+    assert(XX1[i]==XX2[i]);
+    if(XX1[i]!=XX2[i]) ngcnt++;
+  }
+  dumpAR(XX1);
+  dumpAR(XX2);
 }
 
 void solve(int N, int K) {
   preord(0),postord(0);
   assert(SZ(S1)==SZ(S2));
   UF uf(N);
-  REP(i,N) uf.unite(S1[i],S2[i]);
+  REP(i,N) {
+    dump3(i,S1[i],S2[i]);
+    uf.unite(S1[i],S2[i]);
+    dump3(i,S1[i],S2[i]);
+    dump3(i,uf.uf[S1[i]],uf.uf[S2[i]]);
+  }
   if(uf.groupNum<K) {
     cout<<no<<endl;
   } else {
@@ -147,10 +196,12 @@ void solve(int N, int K) {
     int x=0;
     MAPII M;
     REP(i,N) {
-      int g=uf.uf[i];
+//      int g=uf.uf[i];
+      int g=uf.find(i);
       if(M.count(g)==0) M[g]=(x++)%K;
       cout<<M[g]+1<<(i==N-1?'\n':' ');
     }
+    assertTree2(N,uf,M);
     assertTree(N,uf,M);
   }
 }
