@@ -50,6 +50,34 @@ typedef tuple< int, int, int > III;
 #define dump4(x,y,z,a) if(TRACE) { cerr << #x << " = " << (x) << ", " << #y << " = " << (y) << ", " << #z << " = " << (z) << ", " << #a << " = " << (a) << endl; }
 #define dumpAR(ar) if(TRACE) { FORR(x,(ar)) { cerr << x << ','; } cerr << endl; }
 
+/*
+ 
+ 7/22/2018 R1 A
+ 
+ 17:11-17:30 submit and got WA. Eventually figured out that my usage of UF library is wrong 😡😡😡😡😡😡
+ 
+ 7/23/2018
+ 
+ 14:45-14:50 verified fixed code passes all the test cases
+ 
+ Editorials:
+  - https://www.facebook.com/notes/facebook-hacker-cup/hacker-cup-2018-round-1-solutions/2267977239884831/
+  - https://www.dropbox.com/sh/ogbmd8ngoij6e6w/AAAPpKjAn6TDgmDrHxuglNa9a?dl=0
+ 
+ Tweets:
+  - https://togetter.com/li/1249478
+  - https://twitter.com/ei1333/status/1021077964476198912
+  - https://twitter.com/beet_aizu/status/1021078298967748611
+  - https://twitter.com/rickytheta/status/1021078394077732864
+  - http://naoyat.hatenablog.jp/entry/FHC2018R1
+ 
+ Summary:
+  - Analysis was straightforward
+  - Terrible implementation mistake 😡😡😡😡😡😡
+  - I should have created a library to generage tree
+ 
+ */
+
 // iostream
 // $ g++ -std=c++11 -Wall -O2 -D_GLIBCXX_DEBUG x.cpp && ./a.out < x.in | diff x.out -
 const int MAX_N=2005;
@@ -58,7 +86,6 @@ VI S1,S2;
 struct UF {
 public:
   int groupNum;
-  vector<int> uf;
   UF(int N) {
     uf=vector<int>(N);
     rank=vector<int>(N);
@@ -94,6 +121,7 @@ public:
     }
   }
 private:
+  vector<int> uf;
   vector<int> rank;
 };
 
@@ -119,8 +147,8 @@ void assertTree(int N, UF &uf, MAPII &M) {
   VI SS1(N),SS2(N);
   REP(i,N) {
 //    dump3(i,)
-    SS1[i]=M[uf.uf[S1[i]]]+1;
-    SS2[i]=M[uf.uf[S2[i]]]+1;
+    SS1[i]=M[uf.find(S1[i])]+1;
+    SS2[i]=M[uf.find(S2[i])]+1;
   }
   int ng=0;
   REP(i,N) {
@@ -138,7 +166,7 @@ void assertTree(int N, UF &uf, MAPII &M) {
 void preord2(int u, UF &uf, MAPII &M, VI &XX1,int N) {
   assert(u<N);
   if(u>-1) {
-    XX1.push_back(M[uf.uf[u]]);
+    XX1.push_back(M[uf.find(u)]);
     assert(SZ(G[u])==2);
     preord2(G[u][0],uf,M,XX1,N),preord2(G[u][1],uf,M,XX1,N);
   }
@@ -148,7 +176,7 @@ void postord2(int u, UF &uf, MAPII &M, VI &XX2,int N) {
   if(u>-1) {
     assert(SZ(G[u])==2);
     postord2(G[u][0],uf,M,XX2,N),postord2(G[u][1],uf,M,XX2,N);
-    XX2.push_back(M[uf.uf[u]]);
+    XX2.push_back(M[uf.find(u)]);
   }
 }
 
@@ -161,34 +189,18 @@ void assertTree2(int N, UF &uf, MAPII &M) {
   assert(SZ(XX1)==N);
   assert(SZ(XX2)==N);
   REP(i,N) {
-    if(XX1[i]!=XX2[i]) {
-      int v1=S1[i],v2=S2[i];
-      dump3(i,XX1[i],XX2[i]);
-      int g1=uf.uf[v1],g2=uf.uf[v2];
-      dump4(v1,v2,g1,g2);
-      SETI a1,a2;
-      REP(i,N)
-      
-      dumpAR(S1);
-      dumpAR(S2);
-    }
     assert(XX1[i]==XX2[i]);
     if(XX1[i]!=XX2[i]) ngcnt++;
   }
-  dumpAR(XX1);
-  dumpAR(XX2);
+//  dumpAR(XX1);
+//  dumpAR(XX2);
 }
 
 void solve(int N, int K) {
   preord(0),postord(0);
   assert(SZ(S1)==SZ(S2));
   UF uf(N);
-  REP(i,N) {
-    dump3(i,S1[i],S2[i]);
-    uf.unite(S1[i],S2[i]);
-    dump3(i,S1[i],S2[i]);
-    dump3(i,uf.uf[S1[i]],uf.uf[S2[i]]);
-  }
+  REP(i,N) uf.unite(S1[i],S2[i]);
   if(uf.groupNum<K) {
     cout<<no<<endl;
   } else {
@@ -196,7 +208,6 @@ void solve(int N, int K) {
     int x=0;
     MAPII M;
     REP(i,N) {
-//      int g=uf.uf[i];
       int g=uf.find(i);
       if(M.count(g)==0) M[g]=(x++)%K;
       cout<<M[g]+1<<(i==N-1?'\n':' ');
@@ -211,22 +222,18 @@ int main() {
   int T;
   cin >> T;
   for(int t = 1; t <= T; ++t) {
-    dump(t);
     REP(i,MAX_N) G[i].clear();
     S1.clear(),S2.clear();
     int N,K; cin>>N>>K;
-    dump2(N,K);
     REP(i,N) {
       int u=i,v1,v2;
       cin>>v1>>v2;
       --v1,--v2;
-//      dump3(u,v1,v2);
       G[u].push_back(v1);
       G[u].push_back(v2);
     }
     cout << "Case #" << t << ": ";
     solve(N,K);
   }
-  dump(ngcnt);
   return 0;
 }
