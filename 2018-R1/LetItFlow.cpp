@@ -50,12 +50,42 @@ typedef tuple< int, int, int > III;
 #define dump4(x,y,z,a) if(TRACE) { cerr << #x << " = " << (x) << ", " << #y << " = " << (y) << ", " << #z << " = " << (z) << ", " << #a << " = " << (a) << endl; }
 #define dumpAR(ar) if(TRACE) { FORR(x,(ar)) { cerr << x << ','; } cerr << endl; }
 
+/*
+ 
+ 7/22/2018 R1 A
+ 
+ 16:45-17:11 submit and got AC
+ 
+ 7/23/2018
+ 
+ 14:05-14:30 add greedy solution
+ 
+ Editorials:
+  - https://www.facebook.com/notes/facebook-hacker-cup/hacker-cup-2018-round-1-solutions/2267977239884831/
+  - https://www.dropbox.com/sh/ogbmd8ngoij6e6w/AAAPpKjAn6TDgmDrHxuglNa9a?dl=0
+ 
+ Tweets:
+  - https://togetter.com/li/1249478
+  - dp
+   - https://twitter.com/ei1333/status/1021077964476198912
+   - http://naoyat.hatenablog.jp/entry/FHC2018R1
+   - https://twitter.com/beet_aizu/status/1021078298967748611
+   - https://twitter.com/rickytheta/status/1021078394077732864
+  - greedy
+   - https://twitter.com/pazzle1230/status/1021078140657926146
+ 
+ Summary:
+  - dp is straightforward
+  - greedy is nice
+ 
+ */
+
 // iostream
 // $ g++ -std=c++11 -Wall -O2 -D_GLIBCXX_DEBUG x.cpp && ./a.out < x.in | diff x.out -
 const LL MOD=1e9+7;
 const int MAX_N=1005;
 LL dp[3][MAX_N];
-void solve(int N, vector<string> &A) {
+void solve_org(int N, vector<string> &A) {
   ZERO(dp);
   dp[0][0]=1LL;
   REP(j,N)REP(i,3) {
@@ -64,6 +94,27 @@ void solve(int N, vector<string> &A) {
   }
   cout<<dp[2][N]<<endl;
 }
+
+void solve(int N, vector<string> &A) {
+  LL res=1;
+  if(SZ(A[0])%2==1||A[0][0]=='#'||A[1][0]=='#'||A[1][N-1]=='#'||A[2][N-1]=='#') {
+    res=0;
+  } else {
+    for(int j=1; j<N-1; j+=2) {
+      int j1=j,j2=j+1;
+      LL x=0;
+      if(A[1][j1]=='#'||A[1][j2]=='#') {
+        x=0;
+      } else {
+        if(A[0][j1]!='#'&&A[0][j2]!='#') ++x;
+        if(A[2][j1]!='#'&&A[2][j2]!='#') ++x;
+      }
+      res*=x,res%=MOD;
+    }
+  }
+  cout<<res<<endl;
+}
+
 int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
