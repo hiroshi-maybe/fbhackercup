@@ -52,6 +52,8 @@ template<typename S, typename T> std::ostream& operator<<(std::ostream& _os, con
  
  19:50-20:12 submit
  
+ https://www.facebook.com/notes/facebook-hacker-cup/hacker-cup-2019-qualification-round-solutions/2797355073613709/
+ 
  */
 
 // $ g++ -std=c++11 -Wall -O2 -D_GLIBCXX_DEBUG LeapfrogCh2.cpp && ./a.out < LeapfrogCh2.in | diff LeapfrogCh2.out -

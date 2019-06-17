@@ -46,7 +46,9 @@ template<typename S, typename T> std::ostream& operator<<(std::ostream& _os, con
  
  6/14/2019
  
- 19:26-20:00 submit
+ 19:26-20:00 AC
+ 
+ https://www.facebook.com/notes/facebook-hacker-cup/hacker-cup-2019-qualification-round-solutions/2797355073613709/
  
  */
 
